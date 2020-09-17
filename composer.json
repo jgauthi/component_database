@@ -1,0 +1,16 @@
+{
+  "name": "jgauthi/component_database",
+  "description": "Some class and tools for database usage: Pdo functions, Pagination, Table Configuration...",
+  "type": "library",
+  "homepage": "https://github.com/jgauthi/component_database",
+  "require": {
+    "php": ">=4.0"
+  },
+  "autoload": {
+    "classmap": [ "src/" ]
+  },
+  "license": "GPL-3.0",
+  "authors": [
+    { "name": "jgauthi", "homepage": "https://github.com/jgauthi" }
+  ]
+}
