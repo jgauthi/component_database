@@ -4,7 +4,8 @@
   "type": "library",
   "homepage": "https://github.com/jgauthi/component_database",
   "require": {
-    "php": ">=4.0"
+    "php": ">=4.0",
+    "ext-mysql": "*"
   },
   "autoload": {
     "classmap": [ "src/" ]
