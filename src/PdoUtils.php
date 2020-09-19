@@ -38,6 +38,38 @@ class PdoUtils
     }
 
     /**
+     * @param string $file
+     * @param string $charset
+     * @return PDO
+     * @throws \PDOException
+     */
+    static public function sqlite_init($file, $charset = 'UTF-8')
+    {
+        if (!class_exists('pdo')) {
+            throw new InvalidArgumentException('[PDO] No install in current server');
+        } elseif (!class_exists('SQLite3')) {
+            throw new InvalidArgumentException('[PDO] SQLite3 no install');
+        }
+
+        $pdo = new PDO("sqlite:{$file}", 'charset='.$charset);
+        $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+
+        // We can now log any exceptions on Fatal error.
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        return $pdo;
+    }
+
+    /**
+     * @param PDO $pdo
+     * @return string
+     */
+    static public function sqlite_version(PDO $pdo)
+    {
+        return $pdo->query('select sqlite_version()')->fetch(PDO::FETCH_NUM)[0];
+    }
+
+    /**
      * @param PDO $pdo
      * @param string $table
      * @param int $id
@@ -107,15 +139,11 @@ class PdoUtils
      */
     static public function insert(PDO $pdo, $table, $data)
     {
-        $keys = array_keys($data);
-        $fields = '`'.implode('`, `',$keys).'`';
+        if (!self::requestWithBinding($pdo, 'INSERT INTO', $table, $data)) {
+            return null;
+        }
 
-        $placeholder = substr(str_repeat('?,', count($keys)),0,-1);
-
-        return $pdo
-            ->prepare("INSERT INTO {$table} ({$fields}) VALUES ({$placeholder})")
-            ->execute(array_values($data))
-        ;
+        return $pdo->lastInsertId();
     }
 
     /**

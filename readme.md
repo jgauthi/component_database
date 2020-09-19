@@ -4,7 +4,7 @@ Some class and tools for database usage: Pdo functions, Pagination, Table Config
 ## Prerequisite
 
 * PHP 4 (v1.0), PHP 5.3 (v1.1), PHP 5.4 (v1.2), PHP 5.5 (v1.3), PHP 5.6+ (v1.4+) or 7.4 (v2)
-* Pdo Mysql
+* Pdo Mysql, Sqlite 3
 
 ## Install
 Edit your [composer.json](https://getcomposer.org) (launch `composer update` after edit):
