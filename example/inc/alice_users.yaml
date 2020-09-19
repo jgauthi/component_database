@@ -1,0 +1,14 @@
+parameters:
+    role: ['admin', 'editor', 'user']
+    table: user
+    pk: id
+
+stdClass:
+    random_user{0..9}:
+        login (unique): <userName()>
+        password: <password()>
+        email: <safeEmail()>
+        niveau: '<randomElement($role)>'
+        date_creation: <dateTimeThisYear()>
+        date_lastpass: '40%? <dateTimeThisMonth()>'
+        page: '<domainName()>.php'

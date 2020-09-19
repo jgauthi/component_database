@@ -11,6 +11,9 @@
   "autoload": {
     "psr-4": { "Jgauthi\\Component\\Database\\": "src/" }
   },
+  "suggest": {
+    "nelmio/alice": "Fixtures generation (alice v3+), require for PdoAlice"
+  },
   "license": "GPL-3.0",
   "authors": [
     { "name": "jgauthi", "homepage": "https://github.com/jgauthi" }
