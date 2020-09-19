@@ -4,11 +4,11 @@ require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/inc/config.inc.php';
 
 // Requête
-mysql_init(DB_HOST, DB_USER, DB_PASS, DB_NAME, 'utf8');
+mysql_init(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 $req = 'SELECT code, nom FROM `departement` ORDER BY code';
 
 $nav = new NavigationPage($req, 10, 5);
-$nav->navig_titre(array('code' => 'Code', 'nom' => 'Département'));
+$nav->navig_titre(['code' => 'Code', 'nom' => 'Département']);
 $departement = $nav->query();
 
 $navigation = $nav->get_navigation();

@@ -6,35 +6,33 @@
  * @param string $database
  * @param string $charset
  *
- * @return bool|resource
+ * @return mysqli
  */
-function mysql_init($server, $login, $pass, $database, $charset = 'utf8')
+function mysql_init($server, $login, $pass, $database)
 {
-    if (!$link = @mysql_connect($server, $login, $pass)) {
-        return !trigger_error('Impossible de se connecter : '.mysql_error());
-    } elseif (!$db_selected = mysql_select_db($database, $link)) {
-        return !trigger_error('Impossible de sélectionner la base de données : '.mysql_error());
-    } elseif (!empty($charset)) { // utf8|latin1
-        if (!function_exists('mysql_set_charset')) {
-            mysql_query("SET CHARACTER SET '$charset';", $link);
-        } else {
-            mysql_set_charset($charset, $link); // php 5.2.3
-        }
+    if (!function_exists('mysqli_connect')) {
+        die('Mysqli not install');
+    } elseif (!$GLOBALS['mysqli'] = mysqli_connect($server, $login, $pass, $database)) {
+        die('Login database echec with mysqli');
+    } elseif ($GLOBALS['mysqli']->connect_errno) { // Vérification de la connexion
+        die('Erreur de connexion : '.$GLOBALS['mysqli']->connect_errno);
+    } elseif (!$GLOBALS['mysqli']->set_charset('utf8')) {
+        die('Erreur lors du chargement du jeu de caractères utf8 : '.$GLOBALS['mysqli']->error);
     }
 
-    return $link;
+    return $GLOBALS['mysqli'];
 }
 
 /**
  * @param string $sql
  *
- * @return bool|resource
+ * @return mysqli_result|bool
  */
 function mysql_req($sql)
 {
-    $req = mysql_query($sql) or die(!trigger_error(
+    $req = mysqli_query($GLOBALS['mysqli'], $sql) or die(!trigger_error(
         (1 === ini_get('display_errors')) ?
-            '<p>Erreur dans la requête MySQL:<br /><pre>'.htmlentities($sql).'</pre><br /> Erreur trouvé: <strong>'.mysql_error().'</strong></p>'
+            '<p>Erreur dans la requête MySQL:<br /><pre>'.htmlentities($sql).'</pre><br /> Erreur trouvé: <strong>'.mysqli_error().'</strong></p>'
             : 'Une erreur a été détecté, veuillez contacter un administrateur'
     ));
 
@@ -53,8 +51,8 @@ function mysql_get_field($champ, $table, $search)
 {
     $req = mysql_req("SELECT $champ FROM $table WHERE $search LIMIT 1;");
 
-    if (1 === mysql_num_rows($req)) {
-        $req = mysql_fetch_row($req);
+    if (1 === mysqli_num_rows($req)) {
+        $req = mysqli_fetch_row($req);
 
         return  $req[0];
     }
@@ -73,17 +71,17 @@ function mysql_fetch_simple($requete)
 {
     $req = mysql_req($requete);
 
-    $data = array();
-    if (mysql_num_rows($req) > 0) {
-        $res = mysql_fetch_row($req);
+    $data = [];
+    if (mysqli_num_rows($req) > 0) {
+        $res = mysqli_fetch_row($req);
         if (1 === count($res)) {
             $data[] = $res[0];
-            while ($res = mysql_fetch_row($req)) {
+            while ($res = mysqli_fetch_row($req)) {
                 $data[] = $res[0];
             }
         } else {
             $data[$res[0]] = $res[1];
-            while ($res = mysql_fetch_row($req)) {
+            while ($res = mysqli_fetch_row($req)) {
                 $data[$res[0]] = $res[1];
             }
         }
@@ -93,21 +91,21 @@ function mysql_fetch_simple($requete)
 }
 
 /**
- * @param resource        $requete
+ * @param mysqli_result  $requete
  * @param string|int|null $id_intitule
  *
  * @return array
  */
 function mysql_fetch_all($requete, $id_intitule = null)
 {
-    $data = array();
+    $data = [];
 
     if (null !== $id_intitule) {
-        while ($res = mysql_fetch_assoc($requete)) {
+        while ($res = mysqli_fetch_assoc($requete)) {
             $data[$res[$id_intitule]] = $res;
         }
     } else {
-        while ($res = mysql_fetch_assoc($requete)) {
+        while ($res = mysqli_fetch_assoc($requete)) {
             $data[] = $res;
         }
     }
@@ -123,7 +121,7 @@ function mysql_fetch_all($requete, $id_intitule = null)
  */
 function mysql_fetch_result($requete, $id_intitule = null)
 {
-    return mysql_fetch_all(mysql_req($requete), $id_intitule);
+    return mysqli_fetch_all(mysql_req($requete), $id_intitule);
 }
 
 //-- Fonctions de traitement ----------------------------------------------------------------------------
@@ -156,10 +154,10 @@ function sql_data($var, $like = false, $from_request_method = true)
     if (('' === trim($var) || null === $var) && !$like) {
         return 'NULL';
     } elseif (1 === get_magic_quotes_gpc() && $from_request_method) {
-        return $start.mysql_real_escape_string(stripslashes($var)).$end;
+        return $start.mysqli_real_escape_string($GLOBALS['mysqli'], stripslashes($var)).$end;
     }
 
-    return $start.mysql_real_escape_string($var).$end;
+    return $start.mysqli_real_escape_string($GLOBALS['mysqli'], $var).$end;
 }
 
 /**
@@ -173,7 +171,7 @@ function sql_data($var, $like = false, $from_request_method = true)
  */
 function sql_regexp_search_expression($mot, $html_entities = false, $lang_code = null)
 {
-    static $liste_search = array(), $liste_replace = array(0 => array(), 1 => array());
+    static $liste_search = [], $liste_replace = [0 => [], 1 => []];
 
     // Retirer le superflut (accent, majuscule, caractères interdit)
     $mot = removeAccents(mb_strtolower(trim($mot)));
@@ -182,16 +180,16 @@ function sql_regexp_search_expression($mot, $html_entities = false, $lang_code =
     // Créer une liste de lettre à remplacer
     if (empty($liste_replace[$html_entities])) {
         // Liste des accents/caractères supportés
-        $expression = array(
-            'a' => array('à', 'á', 'â', 'ã', 'å'),
-            'c' => array('ç'),
-            'e' => array('é', 'è', 'ê', 'ë'),
-            'i' => array('ì', 'í', 'î', 'ï'),
-            'n' => array('ñ'),
-            'o' => array('ô', 'ð', 'ó', 'ò', 'ô', 'õ', 'ö'),
-            'u' => array('ù', 'ú', 'û', 'ü'),
-            'y' => array('ý'),
-        );
+        $expression = [
+            'a' => ['à', 'á', 'â', 'ã', 'å'],
+            'c' => ['ç'],
+            'e' => ['é', 'è', 'ê', 'ë'],
+            'i' => ['ì', 'í', 'î', 'ï'],
+            'n' => ['ñ'],
+            'o' => ['ô', 'ð', 'ó', 'ò', 'ô', 'õ', 'ö'],
+            'u' => ['ù', 'ú', 'û', 'ü'],
+            'y' => ['ý'],
+        ];
 
         // Fonction interne pour ajouter automatiquement les accents à la liste
         $func_add_accent_entities = create_function(
@@ -282,7 +280,7 @@ function removeAccents($str, $utf8 = true)
         $str = utf8_encode($str);
     }
 
-    $transliteration = array(
+    $transliteration = [
         'Ĳ' => 'I', 'Ö' => 'O', 'Œ' => 'O', 'Ü' => 'U', 'ä' => 'a', 'æ' => 'a',
         'ĳ' => 'i', 'ö' => 'o', 'œ' => 'o', 'ü' => 'u', 'ß' => 's', 'ſ' => 's',
         'À' => 'A', 'Á' => 'A', 'Â' => 'A', 'Ã' => 'A', 'Ä' => 'A', 'Å' => 'A',
@@ -376,7 +374,7 @@ function removeAccents($str, $utf8 = true)
         'უ' => 'u', 'ფ' => 'p', 'ქ' => 'k', 'ღ' => 'g', 'ყ' => 'q', 'შ' => 's',
         'ჩ' => 'c', 'ც' => 't', 'ძ' => 'd', 'წ' => 't', 'ჭ' => 'c', 'ხ' => 'k',
         'ჯ' => 'j', 'ჰ' => 'h',
-    );
+    ];
 
     $str = str_replace(
         array_keys($transliteration),

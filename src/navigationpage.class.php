@@ -3,7 +3,7 @@
  * @name: NavigationPage
  * @note: Session numéro page SQL
  * @author: Jgauthi <github.com/jgauthi>, created at [5nov2007]
- * @version: 1.1
+ * @version: 1.2
 
  *******************************************************************************/
 
@@ -85,7 +85,7 @@ class NavigationPage
     }
 
     /**
-     * @return resource|bool
+     * @return mysqli_result
      */
     public function query()
     {
@@ -126,16 +126,16 @@ class NavigationPage
      * @param string $mysql_req_result SQL req to get current line page
      * @param string $mysql_req_nbpage SQL req to get nb page
      *
-     * @return resource|bool
+     * @return mysqli_result
      */
     protected function query_execute($mysql_req_result, $mysql_req_nbpage)
     {
         // Requête SQL
-        $this->req = mysql_query($mysql_req_result);
-        $this->req_nb = mysql_num_rows($this->req);
+        $this->req = mysqli_query($GLOBALS['mysqli'], $mysql_req_result);
+        $this->req_nb = mysqli_num_rows($this->req);
 
         // Calculer le nombre de page TOTAL
-        $sql = mysql_fetch_row(mysql_query($mysql_req_nbpage));
+        $sql = mysqli_fetch_row(mysqli_query($GLOBALS['mysqli'], $mysql_req_nbpage));
         $this->nb = $sql[0];
 
         return $this->req;
@@ -196,17 +196,17 @@ class NavigationPage
             $this->link();
         }
 
-        $navigation = array();
+        $navigation = [];
 
         // Navigation AVANT
         if (1 !== $this->page) {
             // Navigation Début <<
             if ($this->page > 2) {
-                $navigation[] = array('url' => $this->link.'1', 'text' => $this->precplus, 'status' => null);
+                $navigation[] = ['url' => $this->link.'1', 'text' => $this->precplus, 'status' => null];
             }
 
             // Navigation Précédent <
-            $navigation[] = array('url' => $this->link.($this->page - 1), 'text' => $this->prec, 'status' => null);
+            $navigation[] = ['url' => $this->link.($this->page - 1), 'text' => $this->prec, 'status' => null];
         }
 
         // Gestion des numeros de page
@@ -241,17 +241,17 @@ class NavigationPage
         for ($i = $debut; $i <= $fin; ++$i) {
             $status = (($this->page === $i) ? 'active' : null);
 
-            $navigation[] = array('url' => $this->link.$i, 'text' => $i, 'status' => $status);
+            $navigation[] = ['url' => $this->link.$i, 'text' => $i, 'status' => $status];
         }
 
         // NAVIGATION APRES
         if ($this->page !== $nb_page) {
             // Navigation Suivant >
-            $navigation[] = array('url' => $this->link.($this->page + 1), 'text' => $this->suiv, 'status' => null);
+            $navigation[] = ['url' => $this->link.($this->page + 1), 'text' => $this->suiv, 'status' => null];
 
             // Navigation Fin >>
             if ($this->page < ($nb_page - 1)) {
-                $navigation[] = array('url' => $this->link.$nb_page, 'text' => $this->suivplus, 'status' => null);
+                $navigation[] = ['url' => $this->link.$nb_page, 'text' => $this->suivplus, 'status' => null];
             }
         }
 

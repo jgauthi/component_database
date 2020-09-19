@@ -4,7 +4,7 @@ Some class and tools for database usage: Pdo functions, Pagination, Table Config
 ## Prerequisite
 
 * PHP 4 (v1.0), PHP 5.3 (v1.1), PHP 5.4 (v1.2), PHP 5.6+ (v1.3+) or 7.4 (v2)
-* Mysql
+* Mysqli
 
 ## Install
 Edit your [composer.json](https://getcomposer.org) (launch `composer update` after edit):
@@ -14,7 +14,7 @@ Edit your [composer.json](https://getcomposer.org) (launch `composer update` aft
     { "type": "git", "url": "git@github.com:jgauthi/component_database.git" }
   ],
   "require": {
-    "jgauthi/component_database": "1.1"
+    "jgauthi/component_database": "1.2"
   }
 }
 ```

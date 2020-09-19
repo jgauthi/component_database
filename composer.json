@@ -4,9 +4,9 @@
   "type": "library",
   "homepage": "https://github.com/jgauthi/component_database",
   "require": {
-    "php": ">=5.3",
+    "php": ">=5.4",
     "ext-mbstring": "*",
-    "ext-mysql": "*"
+    "ext-mysqli": "*"
   },
   "autoload": {
     "files": [ "src/functions.php" ],
