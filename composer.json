@@ -4,14 +4,13 @@
   "type": "library",
   "homepage": "https://github.com/jgauthi/component_database",
   "require": {
-    "php": ">=5.4",
+    "php": ">=5.5",
     "ext-mbstring": "*",
-    "ext-mysqli": "*",
-    "ext-pdo": "*"
+    "ext-mysqli": "*"
   },
   "autoload": {
     "files": [ "src/functions.php" ],
-    "classmap": [ "src/" ]
+    "psr-4": { "Jgauthi\\Component\\Database\\": "src/" }
   },
   "license": "GPL-3.0",
   "authors": [

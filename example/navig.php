@@ -1,17 +1,19 @@
 <?php
+use Jgauthi\Component\Database\NavigationPage;
+
 // In this example, the vendor folder is located in "example/"
 require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/inc/config.inc.php';
 
 // Requête
-mysql_init(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+$mysqli = mysql_init(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 $req = 'SELECT code, nom FROM `departement` ORDER BY code';
 
-$nav = new NavigationPage($req, 10, 5);
-$nav->navig_titre(['code' => 'Code', 'nom' => 'Département']);
-$departement = $nav->query();
+$nav = new NavigationPage($mysqli, 10, 5);
+$nav->setNavigationTitle(['code' => 'Code', 'nom' => 'Département']);
+$departement = $nav->query($req);
 
-$navigation = $nav->get_navigation();
+$navigation = $nav->getNavigation();
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -28,25 +30,25 @@ $navigation = $nav->get_navigation();
 <main role="main" class="container">
 
     <h1>Test et optimisation Navig</h1>
-    <?php if ($nav->nb_query() > 0): ?>
+    <?php if ($nav->nbQuery() > 0): ?>
     <table class="table table-striped">
         <thead class="thead-dark">
         <tr>
-            <?=$nav->afficher_titre(); ?>
+            <?=$nav->displayTitles(); ?>
         </tr>
         </thead>
         <tbody>
-        <?php while ($res = mysql_fetch_all($departement)): ?>
+        <?php foreach ($departement as $res): ?>
             <tr>
                 <th scope="row"><?=$res['code']; ?></th>
                 <td><?=htmlentities($res['nom'], ENT_QUOTES, 'utf-8'); ?></td>
             </tr>
-        <?php endwhile; ?>
+        <?php endforeach; ?>
         </tbody>
     </table>
 
 
-    <?php if ($nav->nb_page() > 1): // // Navigation page?>
+    <?php if ($nav->nbPage() > 1): // // Navigation page?>
         <nav aria-label="Page navigation" style="margin-top: 15px;">
             <ul class="pagination justify-content-center">
                 <?php foreach ($navigation as $pagin_page): ?>
