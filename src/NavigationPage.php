@@ -3,17 +3,18 @@
  * @name: NavigationPage
  * @note: Page pagination with mysql
  * @author: Jgauthi <github.com/jgauthi>, created at [5nov2007]
- * @version: 1.3 (mysqli version)
+ * @version: 1.4 (mysqli version)
 
  *******************************************************************************/
 
 namespace Jgauthi\Component\Database;
 
 use InvalidArgumentException;
+use PDO;
 
 class NavigationPage
 {
-    /** @var \mysqli $database */
+    /** @var PDO $database */
     protected $database;
 
     // Donnée
@@ -38,11 +39,11 @@ class NavigationPage
 
     /**
      * NavigationPage constructor.
-     * @param \mysqli $databaseLib
+     * @param PDO $databaseLib
      * @param int $nb_ligne
      * @param int $nb_page
      */
-    public function __construct(\mysqli $databaseLib, $nb_ligne = 10, $nb_page = 10)
+    public function __construct(PDO $databaseLib, $nb_ligne = 10, $nb_page = 10)
     {
         $this->database = $databaseLib;
         $this->initSettingsPage($nb_ligne, $nb_page)
@@ -112,7 +113,7 @@ class NavigationPage
 
     /**
      * @param string $query
-     * @return \mysqli_result|bool
+     * @return \PDOStatement|bool
      */
     public function query($query)
     {
@@ -155,13 +156,13 @@ class NavigationPage
      *
      * @param string $sqlRequestCurrentPage SQL req to get current line page
      * @param string $sqlRequestNbPage SQL req to get nb page
-     * @return \mysqli_result|bool
+     * @return \PDOStatement|bool
      */
     protected function queryExecute($sqlRequestCurrentPage, $sqlRequestNbPage)
     {
-        $request = mysqli_query($this->database, $sqlRequestCurrentPage);
-        $this->nbCurrentRequest = mysqli_num_rows($request);
-        $this->nbTotalPage = mysqli_fetch_row(mysqli_query($this->database, $sqlRequestNbPage))[0];
+        $request = $this->database->query($sqlRequestCurrentPage);
+        $this->nbCurrentRequest = $request->rowCount();
+        $this->nbTotalPage = $this->database->query($sqlRequestNbPage)->fetch(PDO::FETCH_COLUMN);
 
         return $request;
     }

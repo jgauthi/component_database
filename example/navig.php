@@ -6,10 +6,10 @@ require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/inc/config.inc.php';
 
 // Requête
-$mysqli = mysql_init(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+$pdo = mysql_init(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 $req = 'SELECT code, nom FROM `departement` ORDER BY code';
 
-$nav = new NavigationPage($mysqli, 10, 5);
+$nav = new NavigationPage($pdo, 10, 5);
 $nav->setNavigationTitle(['code' => 'Code', 'nom' => 'Département']);
 $departement = $nav->query($req);
 
