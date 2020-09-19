@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  * @name: NavigationPage
- * @note: Page pagination with mysql
+ * @note: Page pagination with mysql or sqlite
  * @author: Jgauthi <github.com/jgauthi>, created at [5nov2007]
  * @version: 1.4 (mysqli version)
 
