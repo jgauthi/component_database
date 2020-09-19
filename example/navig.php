@@ -1,12 +1,13 @@
 <?php
 use Jgauthi\Component\Database\NavigationPage;
+use Jgauthi\Component\Database\PdoUtils;
 
 // In this example, the vendor folder is located in "example/"
 require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/inc/config.inc.php';
 
 // Requête
-$pdo = mysql_init(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+$pdo = PdoUtils::mysql_init(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 $req = 'SELECT code, nom FROM `departement` ORDER BY code';
 
 $nav = new NavigationPage($pdo, 10, 5);

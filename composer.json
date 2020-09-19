@@ -9,7 +9,6 @@
     "ext-pdo": "*"
   },
   "autoload": {
-    "files": [ "src/functions.php" ],
     "psr-4": { "Jgauthi\\Component\\Database\\": "src/" }
   },
   "license": "GPL-3.0",
