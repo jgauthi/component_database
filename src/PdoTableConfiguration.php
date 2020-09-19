@@ -12,16 +12,10 @@ use PDO;
 
 class PdoTableConfiguration
 {
-    /** @var PDO */
-    private $pdo;
-    private $table;
+    private PDO $pdo;
+    private string $table;
 
-    /**
-     * PdoTableConfiguration constructor.
-     * @param PDO $pdo
-     * @param string $table
-     */
-    public function __construct(PDO $pdo, $table = 'configuration')
+    public function __construct(PDO $pdo, string $table = 'configuration')
     {
         $this->pdo = $pdo;
         $this->table = $table;
@@ -29,12 +23,10 @@ class PdoTableConfiguration
 
     /**
      * Install the necessary table for this script
-     * @param bool $dropTableIfExist
-     * @return bool
-     * @throws \Exception
      * @throws \PDOException
+     * @throws \Exception
      */
-    public function install($dropTableIfExist = false)
+    public function install(bool $dropTableIfExist = false): bool
     {
         $query = [];
         if ($dropTableIfExist) {
@@ -87,7 +79,7 @@ class PdoTableConfiguration
      * @param mixed|null $defaultValue
      * @return mixed|null
      */
-    public function get($name, $defaultValue = null)
+    public function get(string $name, $defaultValue = null)
     {
         $query = $this->pdo->prepare("
                 SELECT value, serialize
@@ -108,9 +100,9 @@ class PdoTableConfiguration
     /**
      * @param string $name
      * @param mixed $value
-     * @return self
+     * @return \Mindev\Component\Database\PdoTableConfiguration
      */
-    public function save($name, $value)
+    public function save(string $name, $value): self
     {
         $params = [
             'name' => $name,
@@ -131,11 +123,7 @@ class PdoTableConfiguration
         return $this;
     }
 
-    /**
-     * @param string $name
-     * @return self
-     */
-    public function delete($name)
+    public function delete(string $name): self
     {
         $this->pdo
             ->prepare("DELETE FROM `{$this->table}` WHERE name = :name LIMIT 1")

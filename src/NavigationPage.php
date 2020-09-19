@@ -3,7 +3,7 @@
  * @name: NavigationPage
  * @note: Page pagination with mysql or sqlite
  * @author: Jgauthi <github.com/jgauthi>, created at [5nov2007]
- * @version: 1.4 (Pdo version)
+ * @version: 2.0
 
  *******************************************************************************/
 
@@ -18,44 +18,33 @@ class NavigationPage
     protected $database;
 
     // Donnée
-    protected $nbLines;
-    protected $nbPages;
-    protected $nbTotalPage;
-    protected $nbCurrentRequest = null;
+    protected int $nbLines;
+    protected int $nbPages;
+    protected int $nbTotalPage;
+    protected ?int $nbCurrentRequest = null;
 
     // Navigation
-    public $link;
-    protected $currentPage = 1;
-    protected $title = [];
-    public $queryString = false;
+    public string $link;
+    protected int $currentPage = 1;
+    protected array $title = [];
+    public bool $queryString = false;
 
     // Template
-    public $previousPlus = '&lt;&lt;'; // <<
-    public $previous = '&lt;'; // <
-    public $next = '&gt;'; // >
-    public $nextPlus = '&gt;&gt;'; // >>
-    public $upArrow = '&#9757;'; // Main pointant vers le haut
-    public $downArrow = '&#9759;'; // "	"		 "	  "	 bas
+    public string $previousPlus = '&lt;&lt;'; // <<
+    public string $previous = '&lt;'; // <
+    public string $next = '&gt;'; // >
+    public string $nextPlus = '&gt;&gt;'; // >>
+    public string $upArrow = '&#9757;'; // Main pointant vers le haut
+    public string $downArrow = '&#9759;'; // "	"		 "	  "	 bas
 
-    /**
-     * NavigationPage constructor.
-     * @param PDO $databaseLib
-     * @param int $nb_ligne
-     * @param int $nb_page
-     */
-    public function __construct(PDO $databaseLib, $nb_ligne = 10, $nb_page = 10)
+    public function __construct(PDO $databaseLib, int $nb_ligne = 10, int $nb_page = 10)
     {
         $this->database = $databaseLib;
         $this->initSettingsPage($nb_ligne, $nb_page)
             ->initLink();
     }
 
-    /**
-     * @param int $nbLine
-     * @param int $nbPage
-     * @return self
-     */
-    protected function initSettingsPage($nbLine = 10, $nbPage = 10)
+    protected function initSettingsPage(int $nbLine = 10, int $nbPage = 10): self
     {
         $this->nbPages = max($nbPage, 3);
         $this->nbLines = filter_var($nbLine, FILTER_VALIDATE_INT, [
@@ -70,11 +59,7 @@ class NavigationPage
     }
 
     // Link management
-
-    /**
-     * @return self
-     */
-    protected function initLink()
+    protected function initLink(): self
     {
         $this->link = str_replace($_SERVER['QUERY_STRING'], '', $_SERVER['REQUEST_URI']);
         if (!mb_strstr($this->link, '?')) {
@@ -112,10 +97,9 @@ class NavigationPage
     }
 
     /**
-     * @param string $query
      * @return \PDOStatement|bool
      */
-    public function query($query)
+    public function query(string $query)
     {
         /* CALCUL - Pour obtenir les maximuns: 01-10, 11-20, 21-30 ---
         Résultat max: Numéro de la page * Nombre de ligne par page
@@ -158,7 +142,7 @@ class NavigationPage
      * @param string $sqlRequestNbPage SQL req to get nb page
      * @return \PDOStatement|bool
      */
-    protected function queryExecute($sqlRequestCurrentPage, $sqlRequestNbPage)
+    protected function queryExecute(string $sqlRequestCurrentPage, string $sqlRequestNbPage)
     {
         $request = $this->database->query($sqlRequestCurrentPage);
         $this->nbCurrentRequest = $request->rowCount();
@@ -167,28 +151,18 @@ class NavigationPage
         return $request;
     }
 
-    /**
-     * @return int|null
-     */
-    public function nbQuery()
+    public function nbQuery(): ?int
     {
         return $this->nbCurrentRequest;
     }
 
-    /**
-     * @return int
-     */
-    public function nbPage()
+    public function nbPage(): int
     {
         return ceil($this->nbTotalPage / $this->nbLines);
     }
 
     //-- NAVIGATION ------------------------------------------------------------------------------
-
-    /**
-     * @return string|null
-     */
-    public function currentPage()
+    public function currentPage(): ?string
     {
         if (!empty($this->currentPage) && !empty($this->nbTotalPage)) {
             return $this->currentPage . '/' . ceil($this->nbTotalPage / $this->nbLines);
@@ -197,10 +171,7 @@ class NavigationPage
         return null;
     }
 
-    /**
-     * @return array|null
-     */
-    public function getNavigation()
+    public function getNavigation(): ?array
     {
         // Vérification de la page
         $nbPage = $this->nbPage();
@@ -294,11 +265,7 @@ class NavigationPage
         return $navigation;
     }
 
-    /**
-     * @param string|null $classLink
-     * @return string|null
-     */
-    public function navigationBar($classLink = null)
+    public function navigationBar(?string $classLink = null): ?string
     {
         // Class des liens
         $html = '';
@@ -325,11 +292,7 @@ class NavigationPage
         return $html;
     }
 
-    /**
-     * @param array $title
-     * @return self
-     */
-    public function setNavigationTitle($title)
+    public function setNavigationTitle(array $title): self
     {
         if (empty($title)) {
             throw new InvalidArgumentException(
@@ -343,11 +306,7 @@ class NavigationPage
         return $this;
     }
 
-    /**
-     * @param string $balise
-     * @return string|null
-     */
-    public function displayTitles($balise = 'th')
+    public function displayTitles(string $balise = 'th'): ?string
     {
         if (empty($this->title)) {
             return null;

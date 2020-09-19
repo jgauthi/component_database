@@ -21,7 +21,7 @@ Edit your [composer.json](https://getcomposer.org) (launch `composer update` aft
     { "type": "git", "url": "git@github.com:jgauthi/component_database.git" }
   ],
   "require": {
-    "jgauthi/component_database": "1.*"
+    "jgauthi/component_database": "2.*"
   }
 }
 ```

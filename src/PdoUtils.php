@@ -8,19 +8,13 @@ use PDOStatement;
 
 class PdoUtils
 {
-    const CHARSET = 'utf8';
-    const COLLATE = 'utf8_unicode_ci';
+    private const CHARSET = 'utf8';
+    private const COLLATE = 'utf8_unicode_ci';
 
     /**
-     * @param string $server
-     * @param string $login
-     * @param string $pass
-     * @param string $database
-     * @param int $port
-     * @return PDO
      * @throws \PDOException
      */
-    static public function mysql_init($server, $login, $pass, $database, $port = 3306)
+    static public function mysql_init(string $server, string $login, string $pass, string $database, int $port = 3306): PDO
     {
         if (!class_exists('pdo')) {
             throw new InvalidArgumentException('[PDO] No install in current server');
@@ -38,12 +32,9 @@ class PdoUtils
     }
 
     /**
-     * @param string $file
-     * @param string $charset
-     * @return PDO
      * @throws \PDOException
      */
-    static public function sqlite_init($file, $charset = 'UTF-8')
+    static public function sqlite_init(string $file, string $charset = 'UTF-8'): PDO
     {
         if (!class_exists('pdo')) {
             throw new InvalidArgumentException('[PDO] No install in current server');
@@ -60,22 +51,12 @@ class PdoUtils
         return $pdo;
     }
 
-    /**
-     * @param PDO $pdo
-     * @return string
-     */
-    static public function sqlite_version(PDO $pdo)
+    static public function sqlite_version(PDO $pdo): string
     {
         return $pdo->query('select sqlite_version()')->fetch(PDO::FETCH_NUM)[0];
     }
 
-    /**
-     * @param PDO $pdo
-     * @param string $table
-     * @param int $id
-     * @return bool
-     */
-    static public function resetAutoIncrement(PDO $pdo, $table, $id = 0)
+    static public function resetAutoIncrement(PDO $pdo, string $table, int $id = 0): bool
     {
         if (empty($id)) {
             $stmt = $pdo->query("SHOW KEYS FROM {$table} WHERE Key_name = 'PRIMARY'");
@@ -89,14 +70,7 @@ class PdoUtils
         return $pdo->exec("ALTER TABLE {$table} AUTO_INCREMENT = {$id}");
     }
 
-    /**
-     * @param PDO $pdo
-     * @param string $queryStart
-     * @param string $table
-     * @param array $data
-     * @return bool
-     */
-    static private function requestWithBinding($pdo, $queryStart, $table, $data)
+    static private function requestWithBinding(PDO $pdo, string $queryStart, string $table, array $data): bool
     {
         $keys = array_keys($data);
         $fields = '`'.implode('`, `', $keys).'`';
@@ -108,11 +82,7 @@ class PdoUtils
         return $stmt->execute();
     }
 
-    /**
-     * @param PDOStatement $stmt
-     * @param array $data
-     */
-    static public function stmtBindValues(PDOStatement $stmt, $data)
+    static public function stmtBindValues(PDOStatement $stmt, array $data): void
     {
         foreach ($data as $key => $value) {
             $type = PDO::PARAM_STR;
@@ -131,13 +101,9 @@ class PdoUtils
     }
 
     /**
-     * @param PDO $pdo
-     * @param string $table
-     * @param array $data
-     * @return int|null
      * @throws \PDOException On error if PDO::ERRMODE_EXCEPTION option is true.
      */
-    static public function insert(PDO $pdo, $table, $data)
+    static public function insert(PDO $pdo, string $table, array $data): ?int
     {
         if (!self::requestWithBinding($pdo, 'INSERT INTO', $table, $data)) {
             return null;
@@ -146,27 +112,34 @@ class PdoUtils
         return $pdo->lastInsertId();
     }
 
+    /*
+    static public function old_insert(PDO $pdo, string $table, array $data)
+    {
+        $keys = array_keys($data);
+        $fields = '`'.implode('`, `',$keys).'`';
+
+        $placeholder = substr(str_repeat('?,', count($keys)),0,-1);
+
+        return $pdo
+            ->prepare("INSERT INTO {$table} ({$fields}) VALUES ({$placeholder})")
+            ->execute(array_values($data))
+        ;
+    }
+    */
+
     /**
-     * @param PDO $pdo
-     * @param string $table
-     * @param array $data
-     * @return bool
      * @throws \PDOException On error if PDO::ERRMODE_EXCEPTION option is true.
      */
-    static public function replace(PDO $pdo, $table, $data)
+    static public function replace(PDO $pdo, string $table, array $data): bool
     {
         return self::requestWithBinding($pdo, 'REPLACE INTO', $table, $data);
     }
 
+
     /**
-     * @param PDO $pdo
-     * @param string $table
-     * @param array $data
-     * @param array $where
-     * @return int|null
      * @throws \PDOException On error if PDO::ERRMODE_EXCEPTION option is true.
      */
-    static public function update(PDO $pdo, $table, $data, $where)
+    static public function update(PDO $pdo, string $table, array $data, array $where): ?int
     {
         $fields = [];
         array_walk($data, function ($val, $key) use (&$fields) {

@@ -1,6 +1,5 @@
 <?php
-use Jgauthi\Component\Database\PdoAlice;
-use Jgauthi\Component\Database\PdoUtils;
+use Jgauthi\Component\Database\{PdoAlice, PdoUtils};
 use Nelmio\Alice\Loader\NativeLoader;
 
 // Conf

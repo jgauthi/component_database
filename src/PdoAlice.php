@@ -27,30 +27,19 @@ use PDO;
 
 class PdoAlice
 {
-    /** @var NativeLoader */
-    private $aliceLoader;
-    private $table;
-    private $pk;
-    /** @var PDO */
-    private $db;
-    private $fixtures = [];
+    private NativeLoader $aliceLoader;
+    private string $table;
+    private string $pk;
+    private PDO $db;
+    private array $fixtures;
 
-    /**
-     * PdoAlice constructor.
-     * @param NativeLoader $aliceLoader
-     * @param PDO $pdo
-     */
     public function __construct(NativeLoader $aliceLoader, PDO $pdo)
     {
         $this->aliceLoader = $aliceLoader;
         $this->db = $pdo;
     }
 
-    /**
-     * @param string $file
-     * @return self
-     */
-    public function loadFile($file)
+    public function loadFile(string $file): self
     {
         $fixtures = $this->aliceLoader->loadFile($file);
 
@@ -64,10 +53,7 @@ class PdoAlice
         return $this;
     }
 
-    /**
-     * @return self
-     */
-    public function truncate()
+    public function truncate(): self
     {
         // Use DELETE instead TRUNCATE for delete data with foreign keys contraints
         $this->db->prepare("DELETE FROM {$this->table} WHERE 1")->execute();
@@ -76,10 +62,7 @@ class PdoAlice
         return $this;
     }
 
-    /**
-     * @return self
-     */
-    public function execute()
+    public function execute(): self
     {
         if (empty($this->fixtures)) {
             return $this;
